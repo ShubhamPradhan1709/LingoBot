@@ -1,0 +1,75 @@
+{
+    "rally_set_start_errors": {
+        "rally_start_without_end": [
+            237450
+        ],
+        "rally_end_without_start": [],
+        "set_start_without_end": [],
+        "set_end_without_start": []
+    },
+    "camera_view_errors": {
+        "center_back_start_without_end": [],
+        "center_back_end_without_start": [],
+        "left_back_start_without_end": [],
+        "left_back_end_without_start": [],
+        "right_back_start_without_end": [],
+        "right_back_end_without_start": [],
+        "center_front_start_without_end": [],
+        "center_front_end_without_start": [],
+        "left_front_start_without_end": [],
+        "left_front_end_without_start": [],
+        "right_front_start_without_end": [],
+        "right_front_end_without_start": []
+    },
+    "hit_errors": {
+        "no_hit_on_rally_start": [
+            266784
+        ],
+        "shot_duration_greater_than_3": []
+    },
+    "frontwall_errors": {
+        "no_frontwall_between_hits": [
+            [
+                163440,
+                163465
+            ],
+            [
+                199724,
+                199788
+            ]
+        ],
+        "multiple_frontwalls_between_hits": [
+            [
+                163244,
+                163440
+            ],
+            [
+                164075,
+                164158
+            ]
+        ]
+    },
+    "bounce_errors": {
+        "multiple_bounces_between_hits": [
+            [
+                77461,
+                77561
+            ],
+            [
+                150396,
+                150511
+            ],
+            [
+                163244,
+                163440
+            ]
+        ]
+    },
+    "sidewall": {
+        "greater_than_1_sidewalls_between_hit_frontwall": [],
+        "greater_than_2_sidewalls_between_hits": []
+    },
+    "backwall": {
+        "multiple_backwall_between_hits": []
+    }
+}
