@@ -168,7 +168,7 @@ def join_meeting(meeting_url):
         except TimeoutException:
             print("Microphone button not found")
 
-            
+
         try:
             join_btn = WebDriverWait(driver, 20).until(
                 EC.element_to_be_clickable((By.XPATH, "//span[contains(text(), 'Ask to join')]"))
@@ -181,28 +181,36 @@ def join_meeting(meeting_url):
         join_btn.click()
 
         # # Start Recording
+
         # recording_process = subprocess.Popen([
         #     "ffmpeg",
-        #     "-y",                      # Overwrite existing file
-        #     "-f", "x11grab",          # Screen recording for Linux
+        #     "-y",                      # Overwrite if file exists
+        #     "-f", "x11grab",          # Screen capture for Xvfb
         #     "-r", "30",               # Frame rate
-        #     "-video_size", "1536x864", # Screen size
-        #     "-i", ":0.0",             # Display screen
-        #     "-codec:v", "libx264",    # High-quality video
-        #     "-preset", "ultrafast",   # Fast recording
+        #     "-video_size", "1536x864", # Resolution
+        #     "-i", ":99.0+0,0",        # Virtual display
+        #     "-draw_mouse", "1",       # Show mouse cursor
+        #     "-codec:v", "libx264",
+        #     "-preset", "ultrafast",
         #     "recording.mp4"
         # ])
+
 
         recording_process = subprocess.Popen([
             "ffmpeg",
             "-y",                      # Overwrite if file exists
-            "-f", "x11grab",          # Screen capture for Xvfb
-            "-r", "30",               # Frame rate
-            "-video_size", "1536x864", # Resolution
-            "-i", ":99.0+0,0",        # Virtual display
-            "-draw_mouse", "1",       # Show mouse cursor
+            "-f", "x11grab",           # Screen capture for Xvfb
+            "-r", "30",                # Frame rate
+            "-video_size", "1536x864",  # Resolution
+            "-i", ":99.0+0,0",         # Virtual display
+            "-f", "pulse",             # ✅ Capture system audio (Use "pulse" for PulseAudio)
+            "-i", "default",           # ✅ Default audio input
+            "-ac", "2",                # Stereo audio
+            "-ar", "44100",            # Sample rate (44.1 kHz)
             "-codec:v", "libx264",
             "-preset", "ultrafast",
+            "-codec:a", "aac",         # ✅ Encode audio using AAC
+            "-b:a", "128k",            # Audio bitrate
             "recording.mp4"
         ])
         time.sleep(30)  # Just for testing
