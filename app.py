@@ -150,6 +150,26 @@ def join_meeting(meeting_url):
 
     try:
         try:
+            camera_button = WebDriverWait(driver, 10).until(
+                EC.element_to_be_clickable((By.XPATH, "//div[@aria-label='Turn off camera' or @data-tooltip='Turn off camera (ctrl + e)']"))
+            )
+            camera_button.click()
+            print("Camera Turned Off")
+        except TimeoutException:
+            print("Camera button not found")
+
+
+        try:
+            mic_button = WebDriverWait(driver, 10).until(
+                EC.element_to_be_clickable((By.XPATH, "//div[@aria-label='Turn off microphone' or @data-tooltip='Turn off microphone (ctrl + d)']"))
+            )
+            mic_button.click()
+            print("Microphone Turned Off")
+        except TimeoutException:
+            print("Microphone button not found")
+
+            
+        try:
             join_btn = WebDriverWait(driver, 20).until(
                 EC.element_to_be_clickable((By.XPATH, "//span[contains(text(), 'Ask to join')]"))
             )
@@ -193,19 +213,6 @@ def join_meeting(meeting_url):
         
         print("Bot Joined Meeting")
 
-        # while True:
-        #     # participant_count = get_participant_count(driver)
-        #     # print(f"Participants: {participant_count}")
-
-        #     # if participant_count == 1:
-        #     #     print("Everyone has left the meeting.")
-        #     #     recorder.terminate()
-        #     #     break
-
-        #     # time.sleep(10)
-        #     break
-
-        # time.sleep(100)
     except Exception as e:
         print(f"Failed: {e}")
     finally:
