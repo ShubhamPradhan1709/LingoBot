@@ -15,6 +15,9 @@ import time
 import subprocess
 import os
 from pydantic import BaseModel  
+from helper import monitor_meeting, google_login
+from config import config
+
 
 app = FastAPI()
 SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
@@ -59,40 +62,7 @@ def get_meetings(token: str = Depends(OAUTH2_SCHEME)):
 class MeetingRequest(BaseModel):
     meeting_url: str
 
-GOOGLE_EMAIL = "lingonotetakerbot@gmail.com"
-GOOGLE_PASSWORD = "LingoNotetaker@123"
 
-
-def google_login(driver):
-    driver.get("https://accounts.google.com/signin")
-    
-    try:
-        # Wait until Email Field is visible and clickable
-        email_input = WebDriverWait(driver, 20).until(
-            EC.element_to_be_clickable((By.XPATH, "//input[@type='email']"))
-        )
-        email_input.send_keys(GOOGLE_EMAIL)
-        driver.find_element(By.XPATH, "//*[text()='Next']").click()
-        print("Entered Email")
-
-        # Wait for Password Field
-        password_input = WebDriverWait(driver, 20).until(
-            EC.element_to_be_clickable((By.XPATH, "//input[@type='password']"))
-        )
-        password_input.send_keys(GOOGLE_PASSWORD)
-        driver.find_element(By.XPATH, "//*[text()='Next']").click()
-        print("Entered Password")
-
-        # Wait for Redirect to Google Page
-        WebDriverWait(driver, 20).until(
-            EC.url_contains("myaccount.google.com")
-        )
-        print("Logged into Google")
-
-    except TimeoutException:
-        print("Login Failed: Element not found or not interactable")
-    except Exception as e:
-        print(f"Login Failed: {e}")
 
 # def google_login(driver):
 #     driver.get("https://accounts.google.com/signin")
@@ -121,13 +91,6 @@ def start_recording(output_file):
         ["ffmpeg", "-f", "x11grab", "-video_size", resolution, "-i", ":0.0", output_file]
     )
 
-# def get_participant_count(driver):
-#     try:
-#         element = driver.find_element(By.XPATH, "//span[@class='rua5Nb']")
-#         return int(element.text)
-#     except Exception:
-#         return -1
-    
     
 def join_meeting(meeting_url):
 
@@ -180,46 +143,28 @@ def join_meeting(meeting_url):
             )
         join_btn.click()
 
-        # # Start Recording
-
-        # recording_process = subprocess.Popen([
-        #     "ffmpeg",
-        #     "-y",                      # Overwrite if file exists
-        #     "-f", "x11grab",          # Screen capture for Xvfb
-        #     "-r", "30",               # Frame rate
-        #     "-video_size", "1536x864", # Resolution
-        #     "-i", ":99.0+0,0",        # Virtual display
-        #     "-draw_mouse", "1",       # Show mouse cursor
-        #     "-codec:v", "libx264",
-        #     "-preset", "ultrafast",
-        #     "recording.mp4"
-        # ])
-
-
         recording_process = subprocess.Popen([
             "ffmpeg",
-            "-y",                      # Overwrite if file exists
-            "-f", "x11grab",           # Screen capture for Xvfb
-            "-r", "30",                # Frame rate
-            "-video_size", "1536x864",  # Resolution
-            "-i", ":99.0+0,0",         # Virtual display
-            "-f", "pulse",             # ✅ Capture system audio (Use "pulse" for PulseAudio)
-            "-i", "default",           # ✅ Default audio input
-            "-ac", "2",                # Stereo audio
-            "-ar", "44100",            # Sample rate (44.1 kHz)
+            "-y",                
+            "-f", "x11grab",          
+            "-r", "30",               
+            "-video_size", "1536x864",  
+            "-i", ":99.0+0,0",         
+            "-f", "pulse",             
+            "-i", "default",           
+            "-ac", "2",               
+            "-ar", "44100",            
             "-codec:v", "libx264",
             "-preset", "ultrafast",
-            "-codec:a", "aac",         # ✅ Encode audio using AAC
-            "-b:a", "128k",            # Audio bitrate
+            "-codec:a", "aac",         
+            "-b:a", "128k",            
             "recording.mp4"
         ])
-        time.sleep(30)  # Just for testing
 
-        # Stop Recording
-        recording_process.terminate()
-        recording_process.wait()
+
+        monitor_meeting(driver, recording_process)
         
-        print("Bot Joined Meeting")
+        print("Bot left the Meeting")
 
     except Exception as e:
         print(f"Failed: {e}")
@@ -236,14 +181,14 @@ def start_bot(meeting: MeetingRequest, token: str = Depends(OAUTH2_SCHEME)):
     return {"status": "Bot requested to join and recording started"}
 
 
-@app.post("/upload")
-def upload_recording():
-    url = "https://api.lingo.ai/upload"
-    files = {'file': open("recording.mp4", 'rb')}
-    response = requests.post(url, files=files)
-    os.remove("recording.mp4")
-    return response.json()
+# @app.post("/upload")
+# def upload_recording():
+#     url = "https://api.lingo.ai/upload"
+#     files = {'file': open("recording.mp4", 'rb')}
+#     response = requests.post(url, files=files)
+#     os.remove("recording.mp4")
+#     return response.json()
 
 if __name__ == '__main__':
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8001)
